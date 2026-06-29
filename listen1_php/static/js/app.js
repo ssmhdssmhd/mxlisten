@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', function() {
     Player.audio = document.getElementById('audio-player');
     initAudioEvents();
     initProgressBar();
-    loadMyPlaylists();
     loadRecommendPlaylists();
+    loadMyPlaylists();
     startSyncPolling();
     console.log('App initialized');
 });
@@ -257,8 +257,8 @@ function switchTab(tabId) {
             page.className = 'tab-content' + (i === tabId ? ' active' : '');
         }
     }
-    if (tabId === 1) loadMyPlaylists();
-    if (tabId === 2) loadRecommendPlaylists();
+    if (tabId === 1) loadRecommendPlaylists();
+    if (tabId === 2) loadMyPlaylists();
 }
 
 // ============ 我的歌单 ============
@@ -559,7 +559,7 @@ function checkUpdate() {
         if (data && data.has_update) {
             App.lastSyncTime = data.timestamp || Date.now();
             updateLastSync();
-            if (App.currentTab === 1) loadMyPlaylists();
+            if (App.currentTab === 1) loadRecommendPlaylists();
         }
     });
 }

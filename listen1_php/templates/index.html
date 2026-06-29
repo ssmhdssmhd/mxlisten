@@ -15,8 +15,8 @@
                 <span>Listen 1</span>
             </div>
             <nav class="nav">
-                <a class="nav-item active" data-tab="1" onclick="switchTab(1)">我的歌单</a>
-                <a class="nav-item" data-tab="2" onclick="switchTab(2)">精选歌单</a>
+                <a class="nav-item active" data-tab="1" onclick="switchTab(1)">精选歌单</a>
+                <a class="nav-item" data-tab="2" onclick="switchTab(2)">我的歌单</a>
                 <a class="nav-item" data-tab="3" onclick="switchTab(3)">快速搜索</a>
                 <a class="nav-item" data-tab="4" onclick="switchTab(4)">设置</a>
             </nav>
@@ -27,19 +27,8 @@
     <main class="main">
         <div class="container">
 
-            <!-- 我的歌单 -->
-            <section id="tab-1" class="tab-content active">
-                <div class="page-header">
-                    <h2>我的歌单</h2>
-                    <button class="btn btn-primary" onclick="showCreateDialog()">+ 新建歌单</button>
-                </div>
-                <div id="my-playlists" class="playlist-grid">
-                    <!-- 动态渲染 -->
-                </div>
-            </section>
-
             <!-- 精选歌单 -->
-            <section id="tab-2" class="tab-content">
+            <section id="tab-1" class="tab-content active">
                 <div class="page-header">
                     <h2>精选歌单</h2>
                     <div class="source-tabs">
@@ -49,6 +38,17 @@
                     </div>
                 </div>
                 <div id="recommend-playlists" class="playlist-grid">
+                    <!-- 动态渲染 -->
+                </div>
+            </section>
+
+            <!-- 我的歌单 -->
+            <section id="tab-2" class="tab-content">
+                <div class="page-header">
+                    <h2>我的歌单</h2>
+                    <button class="btn btn-primary" onclick="showCreateDialog()">+ 新建歌单</button>
+                </div>
+                <div id="my-playlists" class="playlist-grid">
                     <!-- 动态渲染 -->
                 </div>
             </section>
