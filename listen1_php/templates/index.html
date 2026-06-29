@@ -1084,6 +1084,50 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.25);
         }
+
+        /* 下拉刷新 */
+        .pull-refresh {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pull-refresh-indicator {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            transition: top 0.2s ease;
+            z-index: 1;
+        }
+
+        .pull-refresh-indicator.show {
+            top: 0;
+        }
+
+        .pull-refresh-icon {
+            font-size: 20px;
+            animation: none;
+        }
+
+        .pull-refresh-icon.spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .pull-refresh-text {
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -1107,7 +1151,11 @@
     </header>
 
     <!-- 主内容区 -->
-    <main class="main-content">
+    <main class="main-content pull-refresh" id="main-content">
+        <div id="pull-refresh-indicator" class="pull-refresh-indicator">
+            <span id="pull-refresh-icon" class="pull-refresh-icon">↻</span>
+            <span id="pull-refresh-text" class="pull-refresh-text">下拉刷新</span>
+        </div>
         <div class="container">
             <!-- 精选歌单 -->
             <section id="tab-1" class="tab-panel active">
@@ -1382,7 +1430,140 @@
             loadMyPlaylists();
             startSyncPolling();
             updateLastSync();
+
+            // 下拉刷新
+            initPullRefresh();
         });
+
+        // 下拉刷新
+        var pullRefresh = {
+            startY: 0,
+            currentY: 0,
+            isDragging: false,
+            isRefreshing: false,
+            threshold: 80,
+            maxPull: 120
+        };
+
+        function initPullRefresh() {
+            var mainContent = $('main-content');
+            var indicator = $('pull-refresh-indicator');
+
+            // 触摸事件
+            mainContent.addEventListener('touchstart', function(e) {
+                if (pullRefresh.isRefreshing) return;
+                if (window.scrollY > 0) return;
+                pullRefresh.startY = e.touches[0].clientY;
+                pullRefresh.isDragging = true;
+            }, { passive: true });
+
+            mainContent.addEventListener('touchmove', function(e) {
+                if (!pullRefresh.isDragging || pullRefresh.isRefreshing) return;
+
+                pullRefresh.currentY = e.touches[0].clientY;
+                var diff = pullRefresh.currentY - pullRefresh.startY;
+
+                if (diff > 0 && window.scrollY <= 0) {
+                    e.preventDefault();
+                    var pullDistance = Math.min(diff * 0.5, pullRefresh.maxPull);
+                    indicator.style.top = (pullDistance - 60) + 'px';
+
+                    if (pullDistance >= pullRefresh.threshold) {
+                        $('pull-refresh-text').textContent = '释放刷新';
+                    } else {
+                        $('pull-refresh-text').textContent = '下拉刷新';
+                    }
+                }
+            }, { passive: false });
+
+            mainContent.addEventListener('touchend', function() {
+                if (!pullRefresh.isDragging || pullRefresh.isRefreshing) return;
+                pullRefresh.isDragging = false;
+
+                var diff = pullRefresh.currentY - pullRefresh.startY;
+                var pullDistance = Math.min(diff * 0.5, pullRefresh.maxPull);
+
+                if (pullDistance >= pullRefresh.threshold) {
+                    doRefresh();
+                } else {
+                    indicator.style.top = '-60px';
+                }
+            });
+
+            // 鼠标滚轮也支持（按住Shift+滚动向下触发刷新）
+            var wheelDelta = 0;
+            mainContent.addEventListener('wheel', function(e) {
+                if (pullRefresh.isRefreshing) return;
+                if (window.scrollY > 0) return;
+
+                if (e.deltaY < 0) {
+                    wheelDelta += Math.abs(e.deltaY);
+                    if (wheelDelta > 200 && !pullRefresh.isRefreshing) {
+                        wheelDelta = 0;
+                        doRefresh();
+                    }
+                } else {
+                    wheelDelta = 0;
+                }
+            }, { passive: true });
+        }
+
+        function doRefresh() {
+            if (pullRefresh.isRefreshing) return;
+
+            pullRefresh.isRefreshing = true;
+            var indicator = $('pull-refresh-indicator');
+            indicator.style.top = '0';
+            $('pull-refresh-icon').classList.add('spinning');
+            $('pull-refresh-text').textContent = '正在刷新...';
+
+            // 刷新当前页面的数据
+            var refreshCount = 0;
+            var totalRefresh = 2;
+
+            function checkDone() {
+                refreshCount++;
+                if (refreshCount >= totalRefresh) {
+                    finishRefresh();
+                }
+            }
+
+            // 刷新精选歌单
+            if (App.currentTab === 1) {
+                loadRecommendPlaylists(checkDone);
+            } else {
+                checkDone();
+            }
+
+            // 刷新我的歌单
+            if (App.currentTab === 2) {
+                loadMyPlaylists(checkDone);
+            } else {
+                checkDone();
+            }
+
+            // 手动同步
+            httpGet('/?path=sync', function() {
+                App.lastSyncTime = Date.now();
+                updateLastSync();
+            });
+        }
+
+        function finishRefresh() {
+            setTimeout(function() {
+                pullRefresh.isRefreshing = false;
+                $('pull-refresh-icon').classList.remove('spinning');
+                $('pull-refresh-text').textContent = '刷新成功';
+
+                setTimeout(function() {
+                    var indicator = $('pull-refresh-indicator');
+                    indicator.style.top = '-60px';
+                    setTimeout(function() {
+                        $('pull-refresh-text').textContent = '下拉刷新';
+                    }, 200);
+                }, 500);
+            }, 800);
+        }
 
         // 辅助函数
         function $(id) { return document.getElementById(id); }
@@ -1440,14 +1621,16 @@
         }
 
         // 精选歌单
-        function loadRecommendPlaylists() {
+        function loadRecommendPlaylists(callback) {
             $('recommend-playlists').innerHTML = '<div class="loading">加载中...</div>';
             httpGet('/?path=playlist', function(data) {
                 if (!data || !data.result) {
                     $('recommend-playlists').innerHTML = '<div class="empty-state"><div class="empty-state-icon">😢</div><div class="empty-state-text">加载失败</div></div>';
+                    if (callback) callback();
                     return;
                 }
                 renderRecommendPlaylists(data.result);
+                if (callback) callback();
             });
         }
 
@@ -1474,14 +1657,16 @@
         }
 
         // 我的歌单
-        function loadMyPlaylists() {
+        function loadMyPlaylists(callback) {
             $('my-playlists').innerHTML = '<div class="loading">加载中...</div>';
             httpGet('/?path=my_playlist', function(data) {
                 if (!data || !data.result) {
                     $('my-playlists').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">加载失败</div></div>';
+                    if (callback) callback();
                     return;
                 }
                 renderMyPlaylists(data.result);
+                if (callback) callback();
             });
         }
 
