@@ -9,6 +9,38 @@ require_once 'includes/config.php';
 require_once 'includes/functions.php';
 require_once 'includes/database.php';
 
+// 获取请求路径
+$request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$request_uri = ltrim($request_uri, '/');
+
+// 处理静态文件
+if (preg_match('/^static\//', $request_uri)) {
+    $file = __DIR__ . '/' . $request_uri;
+    if (file_exists($file)) {
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        $mime_types = [
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'ico' => 'image/x-icon',
+            'svg' => 'image/svg+xml',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf'
+        ];
+        $mime = isset($mime_types[$ext]) ? $mime_types[$ext] : 'application/octet-stream';
+        header('Content-Type: ' . $mime);
+        header('Cache-Control: max-age=86400');
+        readfile($file);
+        exit;
+    }
+    http_response_code(404);
+    exit('Not Found');
+}
+
 // 路由处理
 $path = isset($_GET['path']) ? $_GET['path'] : '';
 $method = $_SERVER['REQUEST_METHOD'];
@@ -17,7 +49,16 @@ $method = $_SERVER['REQUEST_METHOD'];
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json; charset=utf-8');
+
+// 如果是API请求，返回JSON
+$api_routes = ['search', 'playlist', 'show_playlist', 'show_myplaylist', 
+    'create_myplaylist', 'add_myplaylist', 'remove_track_from_myplaylist',
+    'remove_myplaylist', 'clone_playlist', 'track_file', 'artist', 'album',
+    'sse', 'sync', 'status'];
+
+if (!empty($path) && in_array($path, $api_routes)) {
+    header('Content-Type: application/json; charset=utf-8');
+}
 
 if ($method === 'OPTIONS') {
     exit(0);
@@ -270,33 +311,20 @@ function api_album() {
 }
 
 /**
- * Server-Sent Events - 实时更新
+ * 检查更新 - 轮询方式实现实时更新
  */
 function api_sse() {
-    header('Content-Type: text/event-stream');
-    header('Cache-Control: no-cache');
-    header('Connection: keep-alive');
-
     $db = Database::getInstance();
-    $last_update = 0;
+    $since = isset($_GET['since']) ? intval($_GET['since']) : 0;
 
-    while (true) {
-        $current_update = $db->getLastUpdate();
+    $current_update = $db->getLastUpdate();
+    $has_update = $current_update > $since;
 
-        if ($current_update > $last_update) {
-            echo "data: " . json_encode(['type' => 'update', 'timestamp' => $current_update]) . "\n\n";
-            ob_flush();
-            flush();
-            $last_update = $current_update;
-        }
-
-        sleep(1);
-
-        // 防止连接超时
-        if (connection_aborted()) {
-            break;
-        }
-    }
+    json_response([
+        'has_update' => $has_update,
+        'timestamp' => $current_update,
+        'type' => 'update'
+    ]);
 }
 
 /**
