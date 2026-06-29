@@ -21,9 +21,10 @@ switch ($path) {
     // 获取推荐歌单列表
     case 'show_playlist':
     case 'playlist':
+        $source = isset($_GET['source']) ? $_GET['source'] : 'netease';
         $db = Database::getInstance();
-        $playlists = $db->getRecommendPlaylists();
-        json_response(['status:success', 'result' => $playlists]);
+        $playlists = $db->getRecommendPlaylists($source);
+        json_response(['status' => 'success', 'result' => $playlists]);
         break;
 
     // 获取歌单详情
@@ -174,7 +175,7 @@ switch ($path) {
 
     // 健康检查
     case 'health':
-        json_response(['status' => 'success', 'version' => '2.33.0', 'timestamp' => time()]);
+        json_response(['status' => 'success', 'version' => '2.34.0', 'timestamp' => time()]);
         break;
 
     // 默认：返回前端页面

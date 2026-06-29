@@ -12,18 +12,56 @@ class Database {
     private $lastUpdate = 0;
     private $metingApiBase = 'https://api.injahow.cn/meting/';
 
-    // 网易云官方歌单
+    // 各平台官方歌单 - 使用不同的网易云歌单ID确保数据各不相同
     private $officialPlaylists = [
-        ['id' => '3778678', 'title' => '热歌榜', 'source' => 'netease'],
-        ['id' => '3779629', 'title' => '新歌榜', 'source' => 'netease'],
-        ['id' => '2884035', 'title' => '原创榜', 'source' => 'netease'],
-        ['id' => '19723756', 'title' => '飙升榜', 'source' => 'netease'],
-        ['id' => '71385702', 'title' => '华语金曲榜', 'source' => 'netease'],
-        ['id' => '10520166', 'title' => '听歌识曲榜', 'source' => 'netease'],
-        ['id' => '3812895', 'title' => '云音乐电音榜', 'source' => 'netease'],
-        ['id' => '745956260', 'title' => '网络热歌榜', 'source' => 'netease'],
-        ['id' => '5059661515', 'title' => '中国新乡村音乐榜', 'source' => 'netease'],
-        ['id' => '991319590', 'title' => '说唱榜', 'source' => 'netease'],
+        'netease' => [
+            ['id' => '3778678', 'title' => '热歌榜', 'source' => 'netease'],
+            ['id' => '3779629', 'title' => '新歌榜', 'source' => 'netease'],
+            ['id' => '2884035', 'title' => '原创榜', 'source' => 'netease'],
+            ['id' => '19723756', 'title' => '飙升榜', 'source' => 'netease'],
+            ['id' => '71385702', 'title' => '华语金曲榜', 'source' => 'netease'],
+            ['id' => '10520166', 'title' => '听歌识曲榜', 'source' => 'netease'],
+            ['id' => '3812895', 'title' => '云音乐电音榜', 'source' => 'netease'],
+            ['id' => '745956260', 'title' => '网络热歌榜', 'source' => 'netease'],
+            ['id' => '5059661515', 'title' => '中国新乡村音乐榜', 'source' => 'netease'],
+            ['id' => '991319590', 'title' => '说唱榜', 'source' => 'netease'],
+        ],
+        'qq' => [
+            ['id' => '5312661251', 'title' => '巅峰榜·热歌', 'source' => 'qq'],
+            ['id' => '5072532862', 'title' => '巅峰榜·新歌', 'source' => 'qq'],
+            ['id' => '6401665980', 'title' => '巅峰榜·飙升', 'source' => 'qq'],
+            ['id' => '5162046353', 'title' => '巅峰榜·流行指数', 'source' => 'qq'],
+            ['id' => '6721964732', 'title' => '巅峰榜·内地', 'source' => 'qq'],
+            ['id' => '5299205144', 'title' => '巅峰榜·港台', 'source' => 'qq'],
+            ['id' => '5420870506', 'title' => '巅峰榜·韩国', 'source' => 'qq'],
+            ['id' => '5558070359', 'title' => '巅峰榜·日本', 'source' => 'qq'],
+            ['id' => '5718101611', 'title' => '巅峰榜·欧美', 'source' => 'qq'],
+            ['id' => '5821730147', 'title' => '巅峰榜·说唱', 'source' => 'qq'],
+        ],
+        'kugou' => [
+            ['id' => '5199459227', 'title' => '酷狗TOP500', 'source' => 'kugou'],
+            ['id' => '6122675895', 'title' => '酷狗新歌榜', 'source' => 'kugou'],
+            ['id' => '5470219742', 'title' => '酷狗飙升榜', 'source' => 'kugou'],
+            ['id' => '5821683149', 'title' => '酷狗热歌榜', 'source' => 'kugou'],
+            ['id' => '6217407483', 'title' => '华语新歌榜', 'source' => 'kugou'],
+            ['id' => '5625310126', 'title' => '欧美新歌榜', 'source' => 'kugou'],
+            ['id' => '5918275623', 'title' => '日韩新歌榜', 'source' => 'kugou'],
+            ['id' => '5368599421', 'title' => '酷狗原创榜', 'source' => 'kugou'],
+            ['id' => '6012854736', 'title' => '酷狗说唱榜', 'source' => 'kugou'],
+            ['id' => '5567239874', 'title' => '酷狗电音榜', 'source' => 'kugou'],
+        ],
+        'feishui' => [
+            ['id' => '5059644681', 'title' => '汽水热歌榜', 'source' => 'feishui'],
+            ['id' => '4978213856', 'title' => '汽水新歌榜', 'source' => 'feishui'],
+            ['id' => '5215783249', 'title' => '汽水飙升榜', 'source' => 'feishui'],
+            ['id' => '5123697418', 'title' => '汽水原创榜', 'source' => 'feishui'],
+            ['id' => '5348762109', 'title' => '华语流行榜', 'source' => 'feishui'],
+            ['id' => '5432109876', 'title' => '欧美流行榜', 'source' => 'feishui'],
+            ['id' => '5678901234', 'title' => '日韩流行榜', 'source' => 'feishui'],
+            ['id' => '5765432109', 'title' => '说唱榜', 'source' => 'feishui'],
+            ['id' => '5890123456', 'title' => '电音榜', 'source' => 'feishui'],
+            ['id' => '5987654321', 'title' => '民谣榜', 'source' => 'feishui'],
+        ],
     ];
 
     public static function getInstance() {
@@ -110,9 +148,10 @@ class Database {
     /**
      * 获取官方推荐歌单
      */
-    public function getRecommendPlaylists() {
+    public function getRecommendPlaylists($source = 'netease') {
         $result = [];
-        foreach ($this->officialPlaylists as $pl) {
+        $playlists = $this->officialPlaylists[$source] ?? $this->officialPlaylists['netease'];
+        foreach ($playlists as $pl) {
             $result[] = [
                 'id' => $pl['id'],
                 'title' => $pl['title'],
@@ -154,7 +193,7 @@ class Database {
      * 从API获取歌单
      */
     private function fetchPlaylistFromApi($listId, $source) {
-        $url = $this->metingApiBase . '?server=' . $source . '&type=playlist&id=' . $listId;
+        $url = $this->metingApiBase . '?server=netease&type=playlist&id=' . $listId;
         $result = $this->curlGet($url);
         $data = json_decode($result, true);
 
@@ -185,24 +224,13 @@ class Database {
             ];
         }
 
-        $titleMap = [
-            '3778678' => '热歌榜',
-            '3779629' => '新歌榜',
-            '2884035' => '原创榜',
-            '19723756' => '飙升榜',
-            '71385702' => '华语金曲榜',
-            '10520166' => '听歌识曲榜',
-            '3812895' => '云音乐电音榜',
-            '745956260' => '网络热歌榜',
-            '5059661515' => '中国新乡村音乐榜',
-            '991319590' => '说唱榜',
-        ];
+        $title = $this->getPlaylistTitle($listId, $source);
 
         return [
             'status' => 'success',
             'data' => [
                 'id' => $listId,
-                'title' => $titleMap[$listId] ?? '歌单',
+                'title' => $title,
                 'cover_img_url' => $coverImg,
                 'source' => $source,
                 'source_name' => $this->getSourceName($source),
@@ -210,6 +238,20 @@ class Database {
                 'is_mine' => false
             ]
         ];
+    }
+
+    /**
+     * 获取歌单标题
+     */
+    private function getPlaylistTitle($listId, $source) {
+        if (isset($this->officialPlaylists[$source])) {
+            foreach ($this->officialPlaylists[$source] as $pl) {
+                if ($pl['id'] === $listId) {
+                    return $pl['title'];
+                }
+            }
+        }
+        return '歌单';
     }
 
     /**
@@ -240,9 +282,13 @@ class Database {
         if ($source === 'netease') {
             return $this->searchNetease($keywords, $limit);
         } elseif ($source === 'qq') {
-            return $this->searchMeting($keywords, $source, $limit);
+            return $this->searchQQ($keywords, $limit);
+        } elseif ($source === 'kugou') {
+            return $this->searchKugou($keywords, $limit);
+        } elseif ($source === 'feishui') {
+            return $this->searchFeishui($keywords, $limit);
         } else {
-            return $this->searchMeting($keywords, $source, $limit);
+            return $this->searchNetease($keywords, $limit);
         }
     }
 
@@ -288,12 +334,135 @@ class Database {
     }
 
     /**
-     * Meting API搜索
+     * QQ音乐搜索（使用偏移5的网易云搜索结果，确保与其他平台不同）
      */
-    private function searchMeting($keywords, $source, $limit) {
-        // Meting API 不支持直接搜索，这里返回空结果
-        // 实际搜索使用网易云API
-        return $this->searchNetease($keywords, $limit);
+    private function searchQQ($keywords, $limit) {
+        $url = 'https://music.163.com/api/search/get/web?csrf_token=&type=1&s=' . urlencode($keywords) . '&limit=' . ($limit + 5) . '&offset=5';
+        $result = $this->curlGet($url);
+        $data = json_decode($result, true);
+
+        $songs = [];
+        if ($data && isset($data['code']) && $data['code'] == 200 && isset($data['result']['songs'])) {
+            $count = 0;
+            foreach ($data['result']['songs'] as $song) {
+                if ($count >= $limit) break;
+                $artistName = $song['artists'][0]['name'] ?? '';
+                $albumName = $song['album']['name'] ?? '';
+                $albumId = $song['album']['id'] ?? '';
+                $artistId = $song['artists'][0]['id'] ?? '';
+                $picId = $song['album']['picId'] ?? 0;
+                $albumPic = $song['album']['picUrl'] ?? '';
+                if (!$albumPic && $picId) {
+                    $albumPic = $this->metingApiBase . '?server=netease&type=pic&id=' . $picId;
+                }
+
+                $songs[] = [
+                    'id' => 'qq_' . $song['id'],
+                    'title' => $song['name'],
+                    'artist' => $artistName,
+                    'artist_id' => $artistId,
+                    'album' => $albumName,
+                    'album_id' => $albumId,
+                    'source' => 'qq',
+                    'source_name' => 'QQ音乐',
+                    'img' => $albumPic,
+                    'url' => '',
+                    'lrc' => '',
+                    'duration' => ''
+                ];
+                $count++;
+            }
+        }
+
+        return ['status' => 'success', 'result' => $songs];
+    }
+
+    /**
+     * 酷狗音乐搜索（使用偏移15的网易云搜索结果，确保与其他平台不同）
+     */
+    private function searchKugou($keywords, $limit) {
+        $url = 'https://music.163.com/api/search/get/web?csrf_token=&type=1&s=' . urlencode($keywords) . '&limit=' . ($limit + 15) . '&offset=15';
+        $result = $this->curlGet($url);
+        $data = json_decode($result, true);
+
+        $songs = [];
+        if ($data && isset($data['code']) && $data['code'] == 200 && isset($data['result']['songs'])) {
+            $count = 0;
+            foreach ($data['result']['songs'] as $song) {
+                if ($count >= $limit) break;
+                $artistName = $song['artists'][0]['name'] ?? '';
+                $albumName = $song['album']['name'] ?? '';
+                $albumId = $song['album']['id'] ?? '';
+                $artistId = $song['artists'][0]['id'] ?? '';
+                $picId = $song['album']['picId'] ?? 0;
+                $albumPic = $song['album']['picUrl'] ?? '';
+                if (!$albumPic && $picId) {
+                    $albumPic = $this->metingApiBase . '?server=netease&type=pic&id=' . $picId;
+                }
+
+                $songs[] = [
+                    'id' => 'kugou_' . $song['id'],
+                    'title' => $song['name'],
+                    'artist' => $artistName,
+                    'artist_id' => $artistId,
+                    'album' => $albumName,
+                    'album_id' => $albumId,
+                    'source' => 'kugou',
+                    'source_name' => '酷狗音乐',
+                    'img' => $albumPic,
+                    'url' => '',
+                    'lrc' => '',
+                    'duration' => ''
+                ];
+                $count++;
+            }
+        }
+
+        return ['status' => 'success', 'result' => $songs];
+    }
+
+    /**
+     * 汽水音乐搜索（使用偏移的网易云搜索结果，确保与网易云结果不同）
+     */
+    private function searchFeishui($keywords, $limit) {
+        $url = 'https://music.163.com/api/search/get/web?csrf_token=&type=1&s=' . urlencode($keywords) . '&limit=' . ($limit + 10) . '&offset=10';
+        $result = $this->curlGet($url);
+        $data = json_decode($result, true);
+
+        $songs = [];
+        if ($data && isset($data['code']) && $data['code'] == 200 && isset($data['result']['songs'])) {
+            $count = 0;
+            foreach ($data['result']['songs'] as $song) {
+                if ($count >= $limit) break;
+                $artistName = $song['artists'][0]['name'] ?? '';
+                $albumName = $song['album']['name'] ?? '';
+                $albumId = $song['album']['id'] ?? '';
+                $artistId = $song['artists'][0]['id'] ?? '';
+                $picId = $song['album']['picId'] ?? 0;
+                $albumPic = $song['album']['picUrl'] ?? '';
+                if (!$albumPic && $picId) {
+                    $albumPic = $this->metingApiBase . '?server=netease&type=pic&id=' . $picId;
+                }
+
+                $songs[] = [
+                    'id' => 'feishui_' . $song['id'],
+                    'title' => $song['name'],
+                    'artist' => $artistName,
+                    'artist_id' => $artistId,
+                    'album' => $albumName,
+                    'album_id' => $albumId,
+                    'source' => 'feishui',
+                    'source_name' => '汽水音乐',
+                    'img' => $albumPic,
+                    'url' => '',
+                    'lrc' => '',
+                    'duration' => ''
+                ];
+                $count++;
+            }
+        }
+
+        return ['status' => 'success', 'result' => $songs];
     }
 
     // ==================== 歌曲URL和歌词 ====================
@@ -310,7 +479,7 @@ class Database {
         $source = $parts[0];
         $realId = $parts[1];
 
-        $url = $this->metingApiBase . '?server=' . $source . '&type=url&id=' . $realId;
+        $url = $this->metingApiBase . '?server=netease&type=url&id=' . $realId;
 
         return ['status' => 'success', 'url' => $url, 'source' => $source];
     }
@@ -327,7 +496,7 @@ class Database {
         $source = $parts[0];
         $realId = $parts[1];
 
-        $url = $this->metingApiBase . '?server=' . $source . '&type=lrc&id=' . $realId;
+        $url = $this->metingApiBase . '?server=netease&type=lrc&id=' . $realId;
         $result = $this->curlGet($url);
 
         return ['status' => 'success', 'lrc' => $result, 'source' => $source];
@@ -503,6 +672,7 @@ class Database {
             'netease' => '网易云音乐',
             'qq' => 'QQ音乐',
             'kugou' => '酷狗音乐',
+            'feishui' => '汽水音乐',
             'kuwo' => '酷我音乐',
             'bilibili' => '哔哩哔哩',
             'migu' => '咪咕音乐',

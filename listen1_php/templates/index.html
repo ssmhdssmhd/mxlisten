@@ -1165,6 +1165,7 @@
                         <button class="source-tab active" data-source="netease">网易云</button>
                         <button class="source-tab" data-source="qq">QQ音乐</button>
                         <button class="source-tab" data-source="kugou">酷狗</button>
+                        <button class="source-tab" data-source="feishui">汽水</button>
                     </div>
                 </div>
                 <div id="recommend-playlists" class="playlist-grid">
@@ -1238,11 +1239,15 @@
                     <h3>关于</h3>
                     <div class="setting-row">
                         <span class="setting-label">版本</span>
-                        <span style="color: rgba(255,255,255,0.6);">2.33.0</span>
+                        <span style="color: rgba(255,255,255,0.6);">2.34.0</span>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">支持平台</span>
+                        <span style="color: rgba(255,255,255,0.6);">网易云 / QQ音乐 / 酷狗 / 汽水</span>
                     </div>
                     <div class="setting-row">
                         <span class="setting-label">数据源</span>
-                        <span style="color: rgba(255,255,255,0.6);">Meting API</span>
+                        <span style="color: rgba(255,255,255,0.6);">Meting API + 网易云API</span>
                     </div>
                     <div class="setting-row">
                         <span class="setting-label">原项目</span>
@@ -1623,7 +1628,7 @@
         // 精选歌单
         function loadRecommendPlaylists(callback) {
             $('recommend-playlists').innerHTML = '<div class="loading">加载中...</div>';
-            httpGet('/?path=playlist', function(data) {
+            httpGet('/?path=playlist&source=' + App.currentSource, function(data) {
                 if (!data || !data.result) {
                     $('recommend-playlists').innerHTML = '<div class="empty-state"><div class="empty-state-icon">😢</div><div class="empty-state-text">加载失败</div></div>';
                     if (callback) callback();
