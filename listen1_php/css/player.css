@@ -1,0 +1,12 @@
+/* 播放器基础样式 - Listen 1 PHP */
+/* 主要样式已内联在HTML中，此文件作为备份和扩展 */
+
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --text-color: #fff;
+    --bg-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --bg-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 如果需要额外的播放器样式可以在这里添加 */

@@ -13,51 +13,23 @@ function json_response($data, $code = 200) {
 }
 
 /**
- * 生成唯一ID
+ * 返回成功响应
  */
-function generate_id() {
-    return bin2hex(random_bytes(16));
+function success_response($data = []) {
+    json_response(array_merge(['status:success'], $data));
 }
 
 /**
- * 获取示例歌曲数据
+ * 返回错误响应
  */
-function get_sample_songs($keywords) {
-    // 模拟搜索结果
-    // 实际项目中应该调用真实音乐平台的API
-    $sources = [
-        ['name' => '网易云音乐', 'id' => 'netease'],
-        ['name' => 'QQ音乐', 'id' => 'qq'],
-        ['name' => '虾米音乐', 'id' => 'xiami'],
-        ['name' => '酷狗音乐', 'id' => 'kugou']
-    ];
-
-    $songs = [];
-    for ($i = 0; $i < 5; $i++) {
-        $source = $sources[array_rand($sources)];
-        $songs[] = [
-            'id' => generate_id(),
-            'title' => $keywords . ' - 示例歌曲 ' . ($i + 1),
-            'artist' => '艺术家 ' . chr(65 + $i),
-            'album' => $keywords . ' 专辑',
-            'artist_id' => 'artist_' . $i,
-            'album_id' => 'album_' . $i,
-            'source' => $source['id'],
-            'source_name' => $source['name'],
-            'url' => '',
-            'source_url' => 'https://music.163.com/#/search/m/?s=' . urlencode($keywords),
-            'img_url' => '/static/images/placeholder.png',
-            'duration' => rand(180, 300)
-        ];
-    }
-
-    return $songs;
+function error_response($message, $code = 400) {
+    json_response(['status:error', 'message' => $message], $code);
 }
 
 /**
- * 获取当前时间戳(毫秒)
+ * 获取当前时间戳（毫秒）
  */
-function get_microtime() {
+function get_millisecond() {
     return round(microtime(true) * 1000);
 }
 
@@ -81,4 +53,41 @@ function write_json_file($file, $data) {
         mkdir($dir, 0755, true);
     }
     return file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Curl GET请求
+ */
+function curl_get($url, $timeout = 15) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_ENCODING, '');
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
+
+/**
+ * Curl POST请求
+ */
+function curl_post($url, $data, $timeout = 15) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($data) ? http_build_query($data) : $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
 }
