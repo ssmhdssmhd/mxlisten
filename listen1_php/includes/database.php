@@ -77,6 +77,47 @@ class Database {
                 ];
             }
         }
+
+        if (strpos($list_id, 'rec_') === 0) {
+            $parts = explode('_', $list_id);
+            $source = intval($parts[1] ?? 0);
+            $index = intval($parts[2] ?? 1);
+            $sources = ['网易', '虾米', 'QQ音乐', '豆瓣'];
+            $sourceName = $sources[$source] ?? '未知';
+
+            $titles = [
+                1 => $sourceName . '推荐歌单 ' . date('Y-m-d'),
+                2 => $sourceName . '热门歌曲'
+            ];
+
+            $tracks = [];
+            $count = $index === 1 ? 20 : 50;
+            for ($i = 1; $i <= $count; $i++) {
+                $tracks[] = [
+                    'id' => 'rec_track_' . $source . '_' . $index . '_' . $i,
+                    'title' => '示例歌曲 ' . $i,
+                    'artist' => '示例歌手',
+                    'artist_id' => 'rec_artist_' . $source . '_' . $i,
+                    'album' => '示例专辑',
+                    'album_id' => 'rec_album_' . $source . '_' . $i,
+                    'source' => $source,
+                    'source_url' => '',
+                    'img_url' => '/static/images/placeholder.png',
+                    'url' => ''
+                ];
+            }
+
+            return [
+                'info' => [
+                    'id' => $list_id,
+                    'title' => $titles[$index] ?? ($sourceName . '歌单'),
+                    'cover_img_url' => '/static/images/placeholder.png'
+                ],
+                'tracks' => $tracks,
+                'is_mine' => false
+            ];
+        }
+
         return null;
     }
 
