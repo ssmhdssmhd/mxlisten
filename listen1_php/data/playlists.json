@@ -1,0 +1,21 @@
+{
+    "playlists": [
+        {
+            "id": "default_1",
+            "title": "我的收藏",
+            "cover_img_url": "/static/images/mycover.jpg",
+            "is_mine": true,
+            "tracks": [],
+            "created_at": 1782742800
+        },
+        {
+            "id": "default_2",
+            "title": "默认歌单",
+            "cover_img_url": "/static/images/mycover.jpg",
+            "is_mine": true,
+            "tracks": [],
+            "created_at": 1782742800
+        }
+    ],
+    "last_update": 1782742800000
+}
