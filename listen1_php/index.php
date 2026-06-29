@@ -96,6 +96,9 @@ switch ($path) {
     case 'track_file':
         api_track_file();
         break;
+    case 'song_url':
+        api_song_url();
+        break;
     case 'artist':
         api_artist();
         break;
@@ -130,13 +133,9 @@ function api_search() {
     }
 
     $db = Database::getInstance();
-    $results = [];
+    $results = $db->search($keywords, $source);
 
-    // 模拟搜索结果 - 实际项目中应该调用真实音乐API
-    // 这里使用示例数据
-    $sample_songs = get_sample_songs($keywords);
-
-    json_response(['result' => $sample_songs]);
+    json_response(['result' => $results]);
 }
 
 /**
@@ -187,7 +186,7 @@ function api_show_myplaylist() {
  */
 function api_create_myplaylist() {
     $title = isset($_POST['list_title']) ? trim($_POST['list_title']) : '';
-    $song = isset($_POST['title']) ? $_POST : null;
+    $song = isset($_POST['id']) ? $_POST : null;
 
     if (empty($title)) {
         json_response(['success' => false, 'message' => '歌单名称不能为空']);
@@ -195,14 +194,23 @@ function api_create_myplaylist() {
     }
 
     $db = Database::getInstance();
-    $list_id = $db->createPlaylist($title);
-
+    $track = null;
     if ($song) {
-        $db->addToPlaylist($list_id, $song);
+        $track = [
+            'id' => $song['id'] ?? '',
+            'title' => $song['title'] ?? '',
+            'artist' => $song['artist'] ?? '',
+            'artist_id' => $song['artist_id'] ?? '',
+            'album' => $song['album'] ?? '',
+            'album_id' => $song['album_id'] ?? '',
+            'source' => $song['source'] ?? '',
+            'source_url' => $song['source_url'] ?? '',
+            'img_url' => $song['img_url'] ?? '',
+            'url' => $song['url'] ?? ''
+        ];
     }
-
-    // 触发更新
-    $db->updateTimestamp();
+    $list_id = $db->createPlaylist($title, $track);
+    $db->sync();
 
     json_response(['success' => true, 'list_id' => $list_id]);
 }
@@ -220,8 +228,20 @@ function api_add_myplaylist() {
     }
 
     $db = Database::getInstance();
-    $db->addToPlaylist($list_id, $song);
-    $db->updateTimestamp();
+    $track = [
+        'id' => $song['id'] ?? '',
+        'title' => $song['title'] ?? '',
+        'artist' => $song['artist'] ?? '',
+        'artist_id' => $song['artist_id'] ?? '',
+        'album' => $song['album'] ?? '',
+        'album_id' => $song['album_id'] ?? '',
+        'source' => $song['source'] ?? '',
+        'source_url' => $song['source_url'] ?? '',
+        'img_url' => $song['img_url'] ?? '',
+        'url' => $song['url'] ?? ''
+    ];
+    $db->addTrackToPlaylist($list_id, $track);
+    $db->sync();
 
     json_response(['success' => true]);
 }
@@ -234,8 +254,8 @@ function api_remove_track() {
     $track_id = isset($_POST['track_id']) ? $_POST['track_id'] : '';
 
     $db = Database::getInstance();
-    $db->removeFromPlaylist($list_id, $track_id);
-    $db->updateTimestamp();
+    $db->removeTrackFromPlaylist($list_id, $track_id);
+    $db->sync();
 
     json_response(['success' => true]);
 }
@@ -247,8 +267,8 @@ function api_remove_playlist() {
     $list_id = isset($_POST['list_id']) ? $_POST['list_id'] : '';
 
     $db = Database::getInstance();
-    $db->removePlaylist($list_id);
-    $db->updateTimestamp();
+    $db->deletePlaylist($list_id);
+    $db->sync();
 
     json_response(['success' => true]);
 }
@@ -261,7 +281,7 @@ function api_clone_playlist() {
 
     $db = Database::getInstance();
     $new_list_id = $db->clonePlaylist($list_id);
-    $db->updateTimestamp();
+    $db->sync();
 
     json_response(['success' => true, 'list_id' => $new_list_id]);
 }
@@ -277,9 +297,18 @@ function api_track_file() {
         exit;
     }
 
-    // 代理请求以解决跨域问题
     header('Content-Type: audio/mpeg');
     readfile($url);
+}
+
+function api_song_url() {
+    $db = Database::getInstance();
+    $song_id = isset($_GET['song_id']) ? $_GET['song_id'] : '';
+    $url = $db->getSongUrl($song_id);
+    json_response([
+        'status' => $url ? 1 : 0,
+        'url' => $url
+    ]);
 }
 
 /**
@@ -332,7 +361,7 @@ function api_sse() {
  */
 function api_sync() {
     $db = Database::getInstance();
-    $playlists = $db->getAllPlaylists();
+    $playlists = $db->getMyPlaylists();
 
     json_response([
         'playlists' => $playlists,

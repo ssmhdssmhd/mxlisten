@@ -120,10 +120,11 @@ define('DATA_DIR', __DIR__ . '/../data');
 ## 技术栈
 
 - **后端**：PHP 7.0+
-- **前端**：AngularJS 1.x, jQuery 1.12
-- **实时通信**：Server-Sent Events (SSE)
+- **前端**：原生 JavaScript (无框架依赖)
+- **实时通信**：轮询方式 (兼容 PHP 内置服务器)
 - **数据存储**：JSON 文件
-- **样式**：Bootstrap 3.x (简化版)
+- **音乐数据源**：Meting API + 网易云音乐 API
+- **样式**：纯 CSS 实现，无外部依赖
 
 ## 注意事项
 

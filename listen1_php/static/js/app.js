@@ -176,8 +176,17 @@
 
         var cover = document.querySelector('.player-cover');
         if (cover) {
-            cover.className = 'player-cover cover-placeholder';
-            cover.innerHTML = '<span class="cover-icon small">♪</span>';
+            if (song.img_url) {
+                cover.className = 'player-cover';
+                cover.style.backgroundImage = 'url(' + song.img_url + ')';
+                cover.style.backgroundSize = 'cover';
+                cover.style.backgroundPosition = 'center';
+                cover.innerHTML = '';
+            } else {
+                cover.className = 'player-cover cover-placeholder';
+                cover.style.backgroundImage = '';
+                cover.innerHTML = '<span class="cover-icon small">♪</span>';
+            }
         }
         var title = $('player-title');
         if (title) { title.textContent = song.title || '未知歌曲'; title.title = song.title || ''; }
@@ -187,9 +196,26 @@
         if (song.url) {
             Player.audio.src = song.url;
             Player.audio.play().catch(function(e) { console.warn(e); });
+        } else {
+            fetchSongUrl(song, addToList);
         }
 
         updatePlaylistMenu();
+    }
+
+    function fetchSongUrl(song, addToList) {
+        httpGet('/?path=song_url&song_id=' + encodeURIComponent(song.id), function(data) {
+            if (data && data.status && data.url) {
+                song.url = data.url;
+                Player.audio.src = data.url;
+                Player.audio.play().catch(function(e) { console.warn(e); });
+                if (addToList && Player.playlist[Player.currentIndex]) {
+                    Player.playlist[Player.currentIndex].url = data.url;
+                }
+            } else {
+                showToast('无法获取播放地址');
+            }
+        });
     }
 
     function togglePlay() {
@@ -359,9 +385,16 @@
         playlists.forEach(function(pl) {
             var card = document.createElement('div');
             card.className = 'playlist-card';
-            card.innerHTML = '<div class="playlist-cover">' +
-                '<div class="cover-inner">♪</div>' +
-                '<div class="playlist-cover-overlay"><div class="play-btn-circle">▶</div></div></div>' +
+            var coverHtml = '';
+            if (pl.cover_img_url) {
+                coverHtml = '<div class="playlist-cover" style="background-image: url(' + pl.cover_img_url + '); background-size: cover; background-position: center;">' +
+                    '<div class="playlist-cover-overlay"><div class="play-btn-circle">▶</div></div></div>';
+            } else {
+                coverHtml = '<div class="playlist-cover">' +
+                    '<div class="cover-inner">♪</div>' +
+                    '<div class="playlist-cover-overlay"><div class="play-btn-circle">▶</div></div></div>';
+            }
+            card.innerHTML = coverHtml +
                 '<div class="playlist-title" title="' + escapeHtml(pl.title || '') + '">' +
                 escapeHtml(pl.title || '未命名') + '</div>';
             card.addEventListener('click', function() {
@@ -437,6 +470,21 @@
             if (delBtn) delBtn.style.display = data.is_mine ? '' : 'none';
             var cloneBtn = $('clone-list-btn');
             if (cloneBtn) cloneBtn.style.display = data.is_mine ? 'none' : '';
+
+            var detailCover = document.querySelector('.detail-cover');
+            if (detailCover) {
+                if (data.info && data.info.cover_img_url) {
+                    detailCover.className = 'detail-cover';
+                    detailCover.style.backgroundImage = 'url(' + data.info.cover_img_url + ')';
+                    detailCover.style.backgroundSize = 'cover';
+                    detailCover.style.backgroundPosition = 'center';
+                    detailCover.innerHTML = '';
+                } else {
+                    detailCover.className = 'detail-cover cover-placeholder';
+                    detailCover.style.backgroundImage = '';
+                    detailCover.innerHTML = '<span class="cover-icon">♪</span>';
+                }
+            }
 
             renderDetailSongs(data.tracks || []);
             var modal = $('playlist-modal');
