@@ -250,8 +250,12 @@ function switchTab(tabId) {
     for (var i = 1; i <= 4; i++) {
         var nav = document.querySelector('.nav-item[data-tab="' + i + '"]');
         var page = document.getElementById('tab-' + i);
-        if (nav) nav.classList.toggle('active', i === tabId);
-        if (page) page.classList.toggle('active', i === tabId);
+        if (nav) {
+            nav.className = 'nav-item' + (i === tabId ? ' active' : '');
+        }
+        if (page) {
+            page.className = 'tab-content' + (i === tabId ? ' active' : '');
+        }
     }
     if (tabId === 1) loadMyPlaylists();
     if (tabId === 2) loadRecommendPlaylists();
@@ -274,7 +278,7 @@ function renderMyPlaylists(playlists) {
     if (!container) return;
     container.innerHTML = '';
     if (!playlists || playlists.length === 0) {
-        container.innerHTML = '<p style="color:#999;padding:40px;text-align:grid-column:1/-1;">暂无歌单，点击右上角创建</p>';
+        container.innerHTML = '<p style="color:#999;padding:40px;text-align:center;grid-column:1/-1;">暂无歌单，点击右上角创建</p>';
         return;
     }
     playlists.forEach(function(pl) {
@@ -306,7 +310,7 @@ function renderRecommendPlaylists(playlists) {
     if (!container) return;
     container.innerHTML = '';
     if (!playlists || playlists.length === 0) {
-        container.innerHTML = '<p style="color:#999;padding:40px;text-align:grid-column:1/-1;">暂无数据</p>';
+        container.innerHTML = '<p style="color:#999;padding:40px;text-align:center;grid-column:1/-1;">暂无数据</p>';
         return;
     }
     playlists.forEach(function(pl) {
